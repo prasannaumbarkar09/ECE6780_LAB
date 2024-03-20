@@ -101,6 +101,57 @@ int main(void)
 	I2C2->TIMINGR |= ((1<<28)| (0x04<<20) | (0x02<<16) | (0xF<<8) | (0x13<<0));  //Parameters in the TIMINGR register to use 100 kHz standard-mode I2C.
 	I2C2->CR1 = I2C_CR1_PE;   //ENABLE I2C USING PE IN CR1 REG.
 
+//Reading the Register */
+// Set the transaction parameters in the CR2 register.
+	 I2C2->CR2 &= ~((0x7F << 16) | (0x3FF << 0));
+
+// Set the number of bytes to transmit=1.
+	 I2C2->CR2 |= (1 << 16) | (0x69 << 1);
+
+// Set the RD_WRN bit to indicate a write operation.
+	I2C2->CR2 &= ~(I2C_CR2_RD_WRN);
+
+// Set the START bit
+	 I2C2->CR2 |= I2C_CR2_START;
+
+// Wait until either of the TXIS (Transmit Register Empty/Ready) or NACKF (Slave Not
+// Acknowledge) flags a reset.
+	 while (!(I2C2->ISR & I2C_ISR_TXIS))
+		;
+	 if (I2C2->ISR & I2C_ISR_NACKF)
+			GPIOC->ODR |=(1<<6);
+// Write the address of the “WHO_AM_I” register into the I2C transmit register. (TXDR)
+	 I2C2->TXDR |= 0x0F;
+	 while (!(I2C2->ISR & I2C_ISR_TC))
+		; /* loop waiting for TC */
+ //Reload the CR2 register with the same parameters as before
+	I2C2->CR2 &= ~((0x7F << 16) | (0x3FF << 0));
+	 I2C2->CR2 |= (1 << 16) | (0x69 << 1);
+
+// Set the RD_WRN bit to indicate a read operation
+	 I2C2->CR2 |= I2C_CR2_RD_WRN;
+
+// Set the START bit again to perform a I2C restart condition
+	I2C2->CR2 |= I2C_CR2_START;
+
+// Wait until either of the RXNE (Receive Register Not Empty) or NACKF (Slave Not
+// Acknowledge) flags a reset
+	while (!(I2C2->ISR & I2C_ISR_RXNE))
+		;
+// Wait until the TC (Transfer Complete) flag is set.
+	if (I2C2->ISR & I2C_ISR_NACKF)
+	GPIOC->ODR |=(1<<6);
+	 while (!(I2C2->ISR & I2C_ISR_TC))
+		; /* loop waiting for TC */
+
+// Check the contents of the RXDR register to see if it matches 0xD3. (expected value of the
+// “WHO_AM_I” register)
+	 if (I2C2->RXDR == 0xD3)
+		GPIOC->ODR |=(1<<9);
+
+// Set the STOP bit in the CR2 register to release the I2C bus
+	 I2C2->CR2 |= I2C_CR2_STOP;
+
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
