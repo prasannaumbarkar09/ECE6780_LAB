@@ -63,7 +63,35 @@ void SystemClock_Config(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
+ RCC->AHBENR |= RCC_AHBENR_GPIOBEN;  //ENABLE GPIO B
+	RCC->AHBENR |= RCC_AHBENR_GPIOCEN;   //ENABLE GPIO C
+	RCC->APB1ENR |= RCC_APB1ENR_I2C2EN;  //ENABLE I2C2
 
+  SystemClock_Config();
+	
+
+// Configure the leds and button
+GPIOC->MODER |= (1<<12) | (1<<14) | (1<<16) | (1<<18);
+GPIOC->MODER &= ~((1<<13) | (1<<15) | (1<<17) | (1<<19));
+GPIOC->OTYPER &= ~((1<<6) | (1<<7) | (1<<8) | (1<<9));
+GPIOC->OSPEEDR &= ~((1<<12) | (1<<14) | (1<<16) | (1<<18));
+GPIOC->PUPDR &= ~((1<<12) | (1<<14) | (1<<16) | (1<<18) | (1<<13) | (1<<15) | (1<<17) | (1<<19));
+GPIOC->OSPEEDR &= ~((1<<0) | (1<<1));
+
+
+// SETTING PINS TO ALTERNATE MODE
+	GPIOB->MODER |= (1<<23) |(0<<22) |(0<<26) | (1<<27); 		//PB11 and PB13 to alternate mode
+	GPIOB->MODER |= (0<<25) |(1<<24) ; 		   //PB14 TO OUTPUT MODE
+	GPIOC->MODER |= (1<<0) | (0<<1) ;				//PC0 TO OUTPUT MODE 
+	GPIOB->MODER &= ~((0<<22) | (0<<26));								
+	GPIOB->OTYPER &= ~ (1<<11) | (1<<13);       					//PB11 AND PB13 TO OUTPUT OPEN DRAIN 
+	GPIOB->OSPEEDR &= ~((1<<20) | (1<<21) | (1<<24) | (1<<25));   
+	GPIOB->PUPDR &= ((1<<25) | (1<<24) );			//PB14 TO PUPD
+	GPIOC->PUPDR &=  ((1<<0) | (1<<1));			//PC0 TO PUPD
+	GPIOB->ODR |= (1<<14);			//PB14 TO HIGH
+	GPIOC->ODR |=  (1<<0);			//PC0 TO HIGH
+	GPIOB->AFR[1] |= (1<<12) | (0<<13) | (0<<14) | (0<<15) ;   //PB11 TO I2C_SDA 
+	GPIOB->AFR[1] |= (0<<23)|(1<<22) | (0<<21)| (1<<20);				//PB13 TO I2C_SCL
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
