@@ -60,10 +60,13 @@ void SystemClock_Config(void);
   * @brief  The application entry point.
   * @retval int
   */
+
+
+
 int main(void)
 {
   /* USER CODE BEGIN 1 */
- RCC->AHBENR |= RCC_AHBENR_GPIOBEN;  //ENABLE GPIO B
+ 	RCC->AHBENR |= RCC_AHBENR_GPIOBEN;  //ENABLE GPIO B
 	RCC->AHBENR |= RCC_AHBENR_GPIOCEN;   //ENABLE GPIO C
 	RCC->APB1ENR |= RCC_APB1ENR_I2C2EN;  //ENABLE I2C2
 
@@ -71,13 +74,13 @@ int main(void)
 	
 
 // Configure the leds and button
-GPIOC->MODER |= (1<<12) | (1<<14) | (1<<16) | (1<<18);
-GPIOC->MODER &= ~((1<<13) | (1<<15) | (1<<17) | (1<<19));
-GPIOC->OTYPER &= ~((1<<6) | (1<<7) | (1<<8) | (1<<9));
-GPIOC->OSPEEDR &= ~((1<<12) | (1<<14) | (1<<16) | (1<<18));
-GPIOC->PUPDR &= ~((1<<12) | (1<<14) | (1<<16) | (1<<18) | (1<<13) | (1<<15) | (1<<17) | (1<<19));
-GPIOC->OSPEEDR &= ~((1<<0) | (1<<1));
-
+	GPIOC->MODER |= (1<<12) | (1<<14) | (1<<16) | (1<<18);
+	GPIOC->MODER &= ~((1<<13) | (1<<15) | (1<<17) | (1<<19));
+	GPIOC->OTYPER &= ~((1<<6) | (1<<7) | (1<<8) | (1<<9));
+	GPIOC->OSPEEDR &= ~((1<<12) | (1<<14) | (1<<16) | (1<<18));
+	GPIOC->PUPDR &= ~((1<<12) | (1<<14) | (1<<16) | (1<<18) | (1<<13) | (1<<15) | (1<<17) | (1<<19));
+	GPIOC->OSPEEDR &= ~((1<<0) | (1<<1));
+	
 
 // SETTING PINS TO ALTERNATE MODE
 	GPIOB->MODER |= (1<<23) |(0<<22) |(0<<26) | (1<<27); 		//PB11 and PB13 to alternate mode
@@ -92,7 +95,11 @@ GPIOC->OSPEEDR &= ~((1<<0) | (1<<1));
 	GPIOC->ODR |=  (1<<0);			//PC0 TO HIGH
 	GPIOB->AFR[1] |= (1<<12) | (0<<13) | (0<<14) | (0<<15) ;   //PB11 TO I2C_SDA 
 	GPIOB->AFR[1] |= (0<<23)|(1<<22) | (0<<21)| (1<<20);				//PB13 TO I2C_SCL
-  /* USER CODE END 1 */
+
+
+// INITITALIZING THE I2C2 PERIPHERAL
+	I2C2->TIMINGR |= ((1<<28)| (0x04<<20) | (0x02<<16) | (0xF<<8) | (0x13<<0));  //Parameters in the TIMINGR register to use 100 kHz standard-mode I2C.
+	I2C2->CR1 = I2C_CR1_PE;   //ENABLE I2C USING PE IN CR1 REG.
 
   /* MCU Configuration--------------------------------------------------------*/
 
